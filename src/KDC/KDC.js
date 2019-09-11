@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import {generateUniquekey} from '../utils';
 import './KDC.scss';
 
@@ -49,20 +51,20 @@ const KDC = props => {
     }
 
     const renderUsers = () => {
-        let usersKeys = Object.keys(users)
+        let usersKeys = Object.keys(props.kdc.users)
         return(
         <div className="usersList">
             {usersKeys.map((user) => {
-                console.log("Looping: ", users[user])
-                let userSessionsKeys = Object.keys(users[user].sessions)
+                //console.log("Looping: ", kdc.users[user])
+                let userSessionsKeys = Object.keys(props.kdc.users[user].sessions)
                 return(
-                    <div className="userRegister" key={users[user].key}>
+                    <div className="userRegister" key={props.kdc.users[user].key}>
                         <span>Nome: {user}</span>
-                        <span>Id: {users[user].id}</span>
-                        <span>Key: {users[user].key}</span>
+                        <span>Id: {props.kdc.users[user].id}</span>
+                        <span>Key: {props.kdc.users[user].key}</span>
                         <div>
                             <span>Sessions:</span>
-                            {userSessionsKeys.map(session => <span>session</span>)}
+                            {userSessionsKeys.map(session => <span>{session}</span>)}
                         </div>
                     </div>
                 )
@@ -120,7 +122,15 @@ const KDC = props => {
         </div>
     )
 }
-export default KDC;
+
+const mapStateToProps = (state) => ({
+    kdc: state.kdc,
+  });
+const mapDispatchToProps = (dispatch) => bindActionCreators({
+
+}, dispatch);
+export default connect(mapStateToProps, mapDispatchToProps)(KDC);
+
 const INITIAL_USER_STATE = {
     name: null,
     id: null,

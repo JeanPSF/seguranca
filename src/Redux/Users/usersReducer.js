@@ -6,8 +6,11 @@ export default function(state = INITIAL_STATE, action) {
     switch(action.type){
         case ADD_USER:
             return {
-              ...state,
-              [action.payload.name]: {...action.payload},
+                ...state,
+                [action.payload.name]: {
+                    ...action.payload,
+                    sessions: action.payload.sessions ? action.payload.sessions : {}
+                },
             };
 
         default:

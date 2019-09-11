@@ -15,4 +15,46 @@
         flex-direction: column;
         padding: 16px;
     }
+    .content {
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        .box {
+            display: flex;
+            border: 1px solid #61dafb;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .usersTitle {
+            padding: 16px;
+        }
+        .usersContent {
+            display: flex;
+            padding: 16px;
+            width: 100%;
+            .usersList {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                .userRegister {
+                    display: flex;
+                    width: 100%;
+                    justify-content: space-between;
+                    flex-direction: column;
+                    border-bottom: 1px dotted #61dafb;
+                    margin-bottom: 16px;
+                    .addKdc {
+                        justify-content: space-between;
+                        display: flex;
+                    }
+                }
+            }
+        }
+    }
 }
