@@ -26,23 +26,22 @@ const Users = props => {
 
     const renderUsers = () => {
         let usersKeys = Object.keys(props.users)
+        
         return(
         <div className="usersList">
             {usersKeys.map((user) => {
-                console.log("Looping: ", props.users[user])
                 let userSessionsKeys = Object.keys(props.users[user].sessions)
                 return(
                     <div className="userRegister" key={props.users[user].key}>
-                        <div className="addKdc">
-                            <span>Nome: {user}</span>
-                            <button onClick={() => props.addKdcUser(props.users[user])}>Add in KDC</button>
-                        </div>
+                        <span>Name: {user}</span>
+                        <span>Friend: {props.users[user].friend}</span>
                         <span>Id: {props.users[user].id}</span>
                         <span>Key: {props.users[user].key}</span>
                         <div>
                             <span>Sessions:</span>
                             {userSessionsKeys.map(session => <span>session</span>)}
                         </div>
+                        <button onClick={() => props.addKdcUser(props.users[user])}>Add in KDC</button>
                     </div>
                 )
             })}
@@ -53,7 +52,8 @@ const Users = props => {
         <div className="users">
             <span className="usersTitle">Users</span>
             <div className="newUser">
-                <span>Nome: <input value={newUser.name || ''} onChange={(event) => setNewUser({...newUser, name: event.target.value})}></input></span>
+                <span>Name: <input value={newUser.name || ''} onChange={(event) => setNewUser({...newUser, name: event.target.value})}></input></span>
+                <span>friend: <input value={newUser.friend || ''} onChange={(event) => setNewUser({...newUser, friend: event.target.value})}></input></span>
                 <span>Key: <input value={newUser.key || ''} onChange={(event) => setNewUser({...newUser, key: event.target.value})}></input></span>
                 <span>16 Inteiros (X-X-X-X-X-X-X-X-X-X-X-X-X-X-X-X)</span>
                 <button onClick={() => createUser()}>New user</button>

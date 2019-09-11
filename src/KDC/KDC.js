@@ -23,6 +23,7 @@ const KDC = props => {
                     ...users,
                     [user.name]: {
                         id: generateUniquekey(),
+                        nonce: generateUniquekey(),
                         key: user.key,
                         sessions: user.section ? user.section : {}
                     }
@@ -60,6 +61,7 @@ const KDC = props => {
                 return(
                     <div className="userRegister" key={props.kdc.users[user].key}>
                         <span>Nome: {user}</span>
+                        <span>Friend: {props.kdc.users[user].friend}</span>
                         <span>Id: {props.kdc.users[user].id}</span>
                         <span>Key: {props.kdc.users[user].key}</span>
                         <div>
@@ -133,6 +135,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(KDC);
 
 const INITIAL_USER_STATE = {
     name: null,
+    friend: null,
+    nonce: null,
     id: null,
     key: null,
     sessions: null
