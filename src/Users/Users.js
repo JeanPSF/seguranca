@@ -3,11 +3,23 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { addUser } from '../Redux/Users/usersActions';
 import { addKdcUser } from '../Redux/KDC/KDCactions';
-import { generateUniquekey } from '../utils';
+import { produceSessionRequest } from '../Redux/Queues/queuesActions';
+import { generateUniquekey, encrypt, decrypt } from '../Utils/utils';
+import { USER, SESSION } from '../Utils/Objects';
 import './Users.scss';
 
 const Users = props => {
-    const [newUser, setNewUser] = useState(INITIAL_USER_STATE)
+    const [newUser, setNewUser] = useState(USER)
+
+    useEffect(() => {
+        //Bob
+        console.log('Bob Decryopt: ', 
+            // decrypt(
+            //     props.users.k0omyspa_kzubawj1is.key, 
+            //     props.users.k0omyspa_kzubawj1is.sessions
+            // )
+        )
+    }, [props.users.k0omyspa_kzubawj1is])
 
     const createUser = () => {
         if(newUser.name && newUser.key){
@@ -15,7 +27,7 @@ const Users = props => {
                 console.log("Adding!")
                 let payload = {...newUser, id: generateUniquekey()}
                 props.addUser(payload)
-                setNewUser(INITIAL_USER_STATE)
+                setNewUser(USER)
             } else {
                 console.log("Invalid user.key");
             }
@@ -23,6 +35,10 @@ const Users = props => {
             console.log("Invalid user.name || user.key");
         }
     }
+
+    const getSessionKey = (payload) => {
+        props.produceSessionRequest(payload)
+    }    
 
     const renderUsers = () => {
         let usersKeys = Object.keys(props.users)
@@ -33,15 +49,28 @@ const Users = props => {
                 let userSessionsKeys = Object.keys(props.users[user].sessions)
                 return(
                     <div className="userRegister" key={props.users[user].key}>
-                        <span>Name: {user}</span>
-                        <span>Friend: {props.users[user].friend}</span>
+                        <span>Name: {props.users[user].name}</span>
                         <span>Id: {props.users[user].id}</span>
+                        <span>Friend: {props.users[user].friend}</span>
                         <span>Key: {props.users[user].key}</span>
-                        <div>
+                        <div style={{display: 'flex', flexDirection: 'column'}}>
                             <span>Sessions:</span>
-                            {userSessionsKeys.map(session => <span>session</span>)}
+                            {userSessionsKeys.map(session => {
+                                console.log(session)
+                                return  <div style={{display: 'flex', flexDirection: 'column'}}>
+                                            <span>Chave sessao: {decrypt(props.users[user].key.split('-'), props.users[user].sessions.session.user.sessionKey)}</span>
+                                            <span>Chave verificacao: {decrypt(props.users[user].key.split('-'), props.users[user].sessions.session.user.verificationStep)}</span>
+                                        </div>
+                            })}
                         </div>
                         <button onClick={() => props.addKdcUser(props.users[user])}>Add in KDC</button>
+                        <button onClick={() => {
+                            getSessionKey({
+                                myId: props.users[user].id,
+                                friendId: props.users[user].friend,
+                                nonce: generateUniquekey()
+                            })
+                        }}>Get session key</button>
                     </div>
                 )
             })}
@@ -76,14 +105,8 @@ const mapStateToProps = (state) => ({
   });
 const mapDispatchToProps = (dispatch) => bindActionCreators({
     addUser,
-    addKdcUser
+    addKdcUser,
+    produceSessionRequest,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users);
-
-const INITIAL_USER_STATE = {
-    name: null,
-    id: null,
-    key: null,
-    sessions: null
-}

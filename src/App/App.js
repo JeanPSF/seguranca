@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './App.css';
-import KDC from './KDC/KDC';
-import Users from './Users/Users';
+import KDC from '../KDC/KDC';
+import Users from '../Users/Users';
 
 function App() {
   const [bob, setBob] = useState({
