@@ -14,14 +14,14 @@ const KDC = props => {
     const [sessions, setSessions] = useState({})
 
     useEffect(() => {
-        console.log(users)
+         //console.log(users)
       }, []);
 
     useEffect(() => {
-        console.log('Acessando fila de requisicoes !')
+         //console.log('Acessando fila de requisicoes !')
         if(props.queues.session.length > 0){
             const consuming = props.queues.session[props.queues.session.length - 1]
-            console.log('Consuming: ', consuming)
+             //console.log('Consuming: ', consuming)
             let payload = {
                 [consuming.myId]: {
                     sessionKey: encrypt(parseStringToKey(props.kdc.users[consuming.myId].key), '15-14-13-12-11-10-9-8-7-6-5-4-3-2-1-0'),
@@ -32,7 +32,7 @@ const KDC = props => {
                     friendId: encrypt(parseStringToKey(props.kdc.users[consuming.friendId].key, props.kdc.users[consuming.friendId].id)),
                 }
             }
-            console.log('Payload: ', payload)
+             //console.log('Payload: ', payload)
             props.addSession({target: consuming.myId, session: payload})
             props.consumeSessionRequest()
         }
@@ -42,7 +42,7 @@ const KDC = props => {
         if(user.name && user.key){
             let userKey = user.key.split('-')
             if(userKey.length === 16){
-                console.log("Adding!")
+                 //console.log("Adding!")
                 setUsers({
                     ...users,
                     [user.name]: {
@@ -54,10 +54,10 @@ const KDC = props => {
                 });
                 setNewUser(USER)
             } else {
-                console.log("Invalid user.key");
+                 //console.log("Invalid user.key");
             }
         } else {
-            console.log("Invalid user.name || user.key");
+             //console.log("Invalid user.name || user.key");
         }
     }
 
@@ -71,7 +71,7 @@ const KDC = props => {
             })
             setNewSession({SESSION})
         } else {
-            console.log("Invalid session.name");
+             //console.log("Invalid session.name");
         }
     }
 
@@ -80,7 +80,7 @@ const KDC = props => {
         return(
         <div className="usersList">
             {usersKeys.map((user) => {
-                //console.log("Looping: ", kdc.users[user])
+                // //console.log("Looping: ", kdc.users[user])
                 let userSessionsKeys = Object.keys(props.kdc.users[user].sessions)
                 return(
                     <div className="userRegister" key={props.kdc.users[user].key}>
@@ -122,13 +122,13 @@ const KDC = props => {
                     <span>Key: <input value={newUser.key || ''} onChange={(event) => setNewUser({...newUser, key: event.target.value})}></input></span>
                     <span>16 Inteiros (X-X-X-X-X-X-X-X-X-X-X-X-X-X-X-X)</span>
                     <button onClick={() => createUser(newUser)}>New user</button>
-                    <button onClick={() => console.log(users)}>Debug</button>
+                    <button onClick={() => {}}>Debug</button>
                 </div>
                 <div className="newSection">
                     <span>Key: <input value={newSession.key || ''} onChange={(event) => setNewSession({...newSession, key: event.target.value})}></input></span>
                     <span>16 Inteiros (X-X-X-X-X-X-X-X-X-X-X-X-X-X-X-X)</span>
                     <button onClick={() => createSession(newSession)}>New session</button>
-                    <button onClick={() => console.log(sessions)}>Debug</button>
+                    <button onClick={() =>  {}}>Debug</button>
                 </div>
             </div>
             <div className="content">

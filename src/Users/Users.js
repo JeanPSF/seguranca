@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { addUser } from '../Redux/Users/usersActions';
+import { addUser, sendSessionKey, generateNonce, sendNonce, checkNonce } from '../Redux/Users/usersActions';
 import { addKdcUser } from '../Redux/KDC/KDCactions';
 import { produceSessionRequest } from '../Redux/Queues/queuesActions';
-import { generateUniquekey, encrypt, decrypt } from '../Utils/utils';
+import { generateUniquekey, encrypt, decrypt, parseStringToKey } from '../Utils/utils';
 import { USER, SESSION } from '../Utils/Objects';
 import './Users.scss';
 
 const Users = props => {
     const [newUser, setNewUser] = useState(USER)
 
-    useEffect(() => {
-        //Bob
-        console.log('Bob Decryopt: ', 
-            // decrypt(
-            //     props.users.k0omyspa_kzubawj1is.key, 
-            //     props.users.k0omyspa_kzubawj1is.sessions
-            // )
-        )
-    }, [props.users.k0omyspa_kzubawj1is])
+    // useEffect(() => {
+    //     //Bob
+    //     console.log('Bob Decryopt: ', 
+    //         // decrypt(
+    //         //     props.users.k0omyspa_kzubawj1is.key, 
+    //         //     props.users.k0omyspa_kzubawj1is.sessions
+    //         // )
+    //     )
+    // }, [props.users.k0omyspa_kzubawj1is])
+
+    const checkNonce = (nonce) => {
+        return nonce + 1
+    }
+    const notCHeckNonce = (nonce) => {
+        return nonce - 1
+    }
 
     const createUser = () => {
         if(newUser.name && newUser.key){
@@ -39,14 +46,23 @@ const Users = props => {
     const getSessionKey = (payload) => {
         props.produceSessionRequest(payload)
     }    
-
+    const sendSessionKey = (payload) => {
+        props.sendSessionKey(payload)
+    }
+    const sendNonce = (nonce) => {
+        return checkNonce(nonce)
+    }
+    const verifyNonce = (nonce) => {
+        return notCHeckNonce(nonce)
+    }
     const renderUsers = () => {
         let usersKeys = Object.keys(props.users)
-        
+        // decrypt(props.users[user].key.split('-'), props.users[user].sessions.session.users[user].verificationStep)
         return(
         <div className="usersList">
             {usersKeys.map((user) => {
                 let userSessionsKeys = Object.keys(props.users[user].sessions)
+                let myId = props.users[user].id
                 return(
                     <div className="userRegister" key={props.users[user].key}>
                         <span>Name: {props.users[user].name}</span>
@@ -55,14 +71,17 @@ const Users = props => {
                         <span>Key: {props.users[user].key}</span>
                         <div style={{display: 'flex', flexDirection: 'column'}}>
                             <span>Sessions:</span>
-                            {userSessionsKeys.map(session => {
-                                console.log(session)
+                            {userSessionsKeys.length > 0 ?
+                             userSessionsKeys.map(session => {
+                                //console.log(session)
                                 return  <div style={{display: 'flex', flexDirection: 'column'}}>
-                                            <span>Chave sessao: {decrypt(props.users[user].key.split('-'), props.users[user].sessions.session.user.sessionKey)}</span>
-                                            <span>Chave verificacao: {decrypt(props.users[user].key.split('-'), props.users[user].sessions.session.user.verificationStep)}</span>
+                                            <span>Chave sessao: {session}</span>
+                                            <span>Chave sessao decrypt: {decrypt(parseStringToKey(props.users[user].key), session)}</span>
                                         </div>
-                            })}
+                            })
+                            : null}
                         </div>
+                        <div>Nonce: {props.users[user].nonce}</div>
                         <button onClick={() => props.addKdcUser(props.users[user])}>Add in KDC</button>
                         <button onClick={() => {
                             getSessionKey({
@@ -71,6 +90,31 @@ const Users = props => {
                                 nonce: generateUniquekey()
                             })
                         }}>Get session key</button>
+                        <button onClick={() => {
+                            let userSessionsKeys = Object.keys(props.users[user].sessions)
+                            sendSessionKey({
+                                from: props.users[user].id,
+                                target: props.users[user].friend,
+                                session: props.users[user].sessions[userSessionsKeys[0]]
+                            })
+                        }}>Send Session Key To Friend</button>
+                        <button onClick={() => {
+                            let nonce = 0
+                            props.generateNonce({nonce: nonce, target: props.users[user].id})
+                        }}>Generate nonce</button>
+
+                        <button onClick={() => {
+                            let parsedSessionKey = parseStringToKey(decrypt(parseStringToKey(props.users[user].key), userSessionsKeys[0]))
+                            props.sendNonce({nonce: encrypt(parsedSessionKey, sendNonce(props.users[user].nonce)), target: props.users[user].friend})
+                        }}>Send nonce</button>
+
+                        <button onClick={() => {
+                            let parsedSessionKey = parseStringToKey(decrypt(parseStringToKey(props.users[user].key), userSessionsKeys[0]))
+                            // console.log(parsedSessionKey)
+                            // console.log(verifyNonce(props.users[user].nonce))
+                            // console.log(decrypt(parsedSessionKey, verifyNonce(props.users[user].nonce)) === 0 ? '0' : decrypt(parsedSessionKey, verifyNonce(props.users[user].nonce)))
+                            props.checkNonce({nonce:  verifyNonce(decrypt(parsedSessionKey,props.users[user].nonce)), target: props.users[user].id})
+                        }}>Check nonce</button>
                     </div>
                 )
             })}
@@ -107,6 +151,8 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
     addUser,
     addKdcUser,
     produceSessionRequest,
+    sendSessionKey,
+    generateNonce, sendNonce, checkNonce
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users);
